@@ -91,7 +91,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -100,9 +100,7 @@ vim.g.have_nerd_font = false
 
 -- Make line numbers default
 vim.opt.number = true
--- You can also add relative line numbers, to help with jumping.
---  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
+vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -477,7 +475,15 @@ require('lazy').setup({
       -- Automatically install LSPs and related tools to stdpath for Neovim
       -- Mason must be loaded before its dependents so we need to set it up here.
       -- NOTE: `opts = {}` is the same as calling `require('mason').setup({})`
-      { 'williamboman/mason.nvim', opts = {} },
+      {
+        'williamboman/mason.nvim',
+        opts = {
+          registries = {
+            'github:nvim-java/mason-registry', -- https://github.com/nvim-java/nvim-java/issues/120
+            'github:mason-org/mason-registry',
+          },
+        },
+      },
       'williamboman/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
 
@@ -536,23 +542,23 @@ require('lazy').setup({
 
           -- Execute a code action, usually your cursor needs to be on top of an error
           -- or a suggestion from your LSP for this to activate.
-          map('gra', vim.lsp.buf.code_action, '[G]oto Code [A]ction', { 'n', 'x' })
+          map('ga', vim.lsp.buf.code_action, '[G]oto Code [A]ction', { 'n', 'x' })
 
           -- Find references for the word under your cursor.
-          map('grr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+          map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
 
           -- Jump to the implementation of the word under your cursor.
           --  Useful when your language has ways of declaring types without an actual implementation.
-          map('gri', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
+          map('gi', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
 
           -- Jump to the definition of the word under your cursor.
           --  This is where a variable was first declared, or where a function is defined, etc.
           --  To jump back, press <C-t>.
-          map('grd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+          map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
 
           -- WARN: This is not Goto Definition, this is Goto Declaration.
           --  For example, in C this would take you to the header.
-          map('grD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+          map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
 
           -- Fuzzy find all the symbols in your current document.
           --  Symbols are things like variables, functions, types, etc.
@@ -677,8 +683,6 @@ require('lazy').setup({
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
         -- ts_ls = {},
-        --
-
         lua_ls = {
           -- cmd = { ... },
           -- filetypes = { ... },
@@ -711,6 +715,7 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
+        'lombok-nightly', -- https://github.com/nvim-java/nvim-java/issues/120
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -718,6 +723,9 @@ require('lazy').setup({
         ensure_installed = {}, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
         automatic_installation = false,
         handlers = {
+          -- Since we are using 'nvim-jdtls' we put a stub here to prevent lspconfig from spawning
+          -- its own jdtls server which results in having an second unconfigured LSP running.
+          ['jdtls'] = function() end,
           function(server_name)
             local server = servers[server_name] or {}
             -- This handles overriding only values explicitly passed
@@ -939,7 +947,7 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'java' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -1000,6 +1008,9 @@ require('lazy').setup({
     -- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
     lazy = false,
   },
+
+  -- Jdtls setup
+  { 'mfussenegger/nvim-jdtls' },
 }, {
   ui = {
     -- If you are using a Nerd Font: set icons to an empty table which will use the
