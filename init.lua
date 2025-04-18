@@ -479,8 +479,8 @@ require('lazy').setup({
         'williamboman/mason.nvim',
         opts = {
           registries = {
-            'github:nvim-java/mason-registry', -- https://github.com/nvim-java/nvim-java/issues/120
             'github:mason-org/mason-registry',
+            'github:nvim-java/mason-registry', -- https://github.com/nvim-java/nvim-java/issues/120
           },
         },
       },
@@ -715,6 +715,11 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
+        -- There seems to deadlock issue with recent versions of JDTLS >=v1.41.0,
+        -- so we pin to v1.40.0 for now.
+        -- https://github.com/eclipse-jdtls/eclipse.jdt.ls/issues/3336
+        -- { 'jdtls', version = 'v1.40.0' },
+        -- 'jdtls',
         'lombok-nightly', -- https://github.com/nvim-java/nvim-java/issues/120
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
@@ -771,11 +776,24 @@ require('lazy').setup({
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
+        java = { 'spotless' },
+        kotlin = { 'spotless' },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
         -- javascript = { "prettierd", "prettier", stop_after_first = true },
+      },
+      formatters = {
+        spotless = function()
+          return {
+            command = './gradlew',
+            args = { 'format' },
+            cwd = require('conform.util').root_file { 'build.gradle.kts' },
+            require_cwd = true,
+            stdin = false,
+          }
+        end,
       },
     },
   },

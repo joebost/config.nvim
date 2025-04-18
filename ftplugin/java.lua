@@ -3,11 +3,11 @@ local workspace_path = home .. '/.local/share/nvim/jdtls-workspace/'
 local project_name = vim.fn.fnamemodify(vim.fn.getcwd(), ':p:h:t')
 local workspace_dir = workspace_path .. project_name
 
-local status, jdtls = pcall(require, 'jdtls')
-if not status then
-  return
-end
-local extendedClientCapabilities = jdtls.extendedClientCapabilities
+-- local status, jdtls = pcall(require, 'jdtls')
+-- if not status then
+--   return
+-- end
+-- local extendedClientCapabilities = jdtls.extendedClientCapabilities
 
 local config = {
   cmd = {
@@ -16,14 +16,17 @@ local config = {
     '-Dosgi.bundles.defaultStartLevel=4',
     '-Declipse.product=org.eclipse.jdt.ls.core.product',
     '-Dlog.protocol=true',
-    '-Dlog.level=ALL',
-    '-Xmx1g',
-    '--add-modules=ALL-SYSTEM',
-    '--add-opens',
-    'java.base/java.util=ALL-UNNAMED',
-    '--add-opens',
-    'java.base/java.lang=ALL-UNNAMED',
-    '-javaagent:' .. home .. '/.local/share/nvim/mason/packages/lombok-nightly/lombok.jar',
+    '-Dlog.level=INFO',
+    '-Xms1g',
+    '-Xmx2g',
+    -- '--add-modules=ALL-SYSTEM',
+    -- '--add-opens',
+    -- 'java.base/java.util=ALL-UNNAMED',
+    -- '--add-opens',
+    -- 'java.base/java.lang=ALL-UNNAMED',
+    '-javaagent:'
+      .. home
+      .. '/.local/share/nvim/mason/packages/lombok-nightly/lombok.jar',
     '-jar',
     vim.fn.glob(home .. '/.local/share/nvim/mason/packages/jdtls/plugins/org.eclipse.equinox.launcher_*.jar'),
     '-configuration',
@@ -31,12 +34,12 @@ local config = {
     '-data',
     workspace_dir,
   },
-  root_dir = require('jdtls.setup').find_root { '.git', 'mvnw', 'gradlew', 'pom.xml', 'build.gradle' },
+  root_dir = vim.fs.root(0, { '.git', 'gradlew' }),
 
   settings = {
     java = {
       signatureHelp = { enabled = true },
-      extendedClientCapabilities = extendedClientCapabilities,
+      -- extendedClientCapabilities = extendedClientCapabilities,
       maven = {
         downloadSources = true,
       },
