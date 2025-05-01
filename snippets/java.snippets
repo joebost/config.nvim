@@ -1,0 +1,15 @@
+snippet new
+    package me.dawnmc.redemption;
+
+    import javax.inject.Inject;
+    import lombok.Getter;
+    import lombok.RequiredArgsConstructor;
+    import lombok.extern.slf4j.Slf4j;
+
+    @Getter
+    @Slf4j(topic = "Redemption")
+    @RequiredArgsConstructor(onConstructor = @__(@Inject))
+    public class ${TM_FILENAME_BASE} {
+        private final Redemption plugin;
+        ${1}
+    }
