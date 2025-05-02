@@ -20,6 +20,8 @@ vim.g.clipboard = {
 local opt = vim.opt -- Alias for vim.opt
 
 -- [[ Setting options ]]
+-- Enable true color support
+opt.termguicolors = true
 -- Make line numbers default
 opt.number = true
 opt.relativenumber = true
