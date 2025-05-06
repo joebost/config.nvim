@@ -32,6 +32,7 @@ return { -- Autoformat
       lua = { 'stylua' },
       java = { 'spotless' },
       kotlin = { 'spotless' },
+      python = { 'ruff_format', 'isort' },
       -- Conform can also run multiple formatters sequentially
       -- python = { "isort", "black" },
       --
